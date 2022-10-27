@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreCompanyRequest;
 use App\Http\Requests\UpdateCompanyRequest;
 use App\Models\Company;
+use Illuminate\Support\Facades\DB;
 
 class CompanyController extends Controller
 {
@@ -22,6 +23,27 @@ class CompanyController extends Controller
 
 
         return view('company.index', compact('companies'));
+    }
+
+
+    public function index2()
+    {
+        $query = DB::table('companies')
+            ->selectRaw('id, name, name as path, 0 as hierarchy')
+            ->whereNull('parent_id')
+            ->unionAll(
+                DB::table('companies')
+                    ->selectRaw('companies.id, companies.name, CONCAT(tree.path, ">", companies.name) as path, tree.hierarchy + 1')
+                    ->join('tree', 'tree.id', '=', 'companies.parent_id')
+            );
+
+        $tree = DB::table('tree')
+            ->withRecursiveExpression('tree', $query)
+            ->orderBy('path')
+            ->get()
+            ;
+
+        return view('company.index2', compact('tree'));
     }
 
     /**

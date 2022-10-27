@@ -19,3 +19,6 @@ Route::get('/', function () {
 
 Route::resource('comments', \App\Http\Controllers\CommentController::class);
 Route::resource('companies', \App\Http\Controllers\CompanyController::class);
+
+Route::get('companies2', [\App\Http\Controllers\CompanyController::class, 'index2']);
+Route::get('comments2', [\App\Http\Controllers\CommentController::class, 'index2']);
